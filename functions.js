@@ -2,12 +2,15 @@
 //Retorna el numero 2 o 4 o 8 (Aleatoriamente)
 function random_2_or_4_or_8(){
   const random = Math.floor(Math.random() * 3);
-  if(random === 1)
+  if(random === 1){
     return 4;
-  else if(random === 2)
+  }
+  else if(random === 2){
     return 8;
-  else
+  }
+  else{
     return 2;
+  }
 }
 
 //Imprime una matriz
@@ -36,15 +39,15 @@ document.addEventListener('keydown', function(event) {
       console.log('Down arrow key pressed');
       break;
   }
-  });
+});
 
 //Confirma que en la primera fila haya un 0()
 function confirmar_movimientos_en_matriz(matrix){
   for (let j = 0; j < matrix.length; j++) { //For que recorre las columnas de la matriz
     if(matrix[0][j] === 0)                  //Si en la fila 0 columna actual hay un 0 
-      return true;                          
+      return j;                          
   }
-  return false;//Si se acaba la ejecucioin del for y no se encontro un 0 se retorna false
+  return -1;//Si se acaba la ejecucioin del for y no se encontro un 0 se retorna false
 }
 
 /*
@@ -67,8 +70,23 @@ function caida(num, columna, matrix){
       break;                          //Significa que no puede caer mas y por lo tanto se termina 
     else{                             //Si el espacio esta vacio
       matrix[i][columna] = num;       //Se coloca el numero en esa posicion
-      if(i>0)                         //Si estamos en alguna fila despues de la 0 
+      cambiar_color_casilla(i+1,columna,'#FFFFFF')
+      if(i>0){                         //Si estamos en alguna fila despues de la 0 
+        cambiar_color_casilla(i,columna,'#9A80E1')
         matrix[i-1][columna] = 0;     //Se elimina el numero de la posicion anterior
+      }
     }
   }
 }
+
+//Cambiar el color de la casilla segun la fila, columna y fila al color de entrada(formato: #123456)
+function cambiar_color_casilla(fila,columna,color){
+  const casilla = document.getElementById('casilla'+fila+columna);
+  casilla.style.backgroundColor = color;
+}
+
+function cambiar_numero_casilla(fila,columna,numero){
+  const casilla = document.getElementById('casilla'+fila+columna);
+  casilla.textContent = numero;
+}
+
