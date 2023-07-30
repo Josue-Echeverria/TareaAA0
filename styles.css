@@ -40,4 +40,9 @@ body {
     margin: 15px;
     width: 100px;
     height: 100px;
+    font-size: 50px;
+    display: flex;
+    justify-content:center;
+    align-items:center;
+    font-family: 'Fira Code', monospace;
 }
