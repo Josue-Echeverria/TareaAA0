@@ -7,7 +7,7 @@ let matrix = [
     [0,0,0,0]
   ];
 
-let columnaAleatoria = [0];
+let columnaAleatoria = [1];
 let filaActual = [0];
 let numAleatorio = [0];
 async function main(){  

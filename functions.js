@@ -14,7 +14,7 @@ function random_2_or_4_or_8(){
 }
 let flagAction = false;
 let inGame = true;
-document.addEventListener('keydown', function(event) {
+document.addEventListener('keydown',function(event) {
   if(inGame){
   switch (event.key) {
     case 'ArrowLeft':
@@ -22,49 +22,34 @@ document.addEventListener('keydown', function(event) {
         if((numAleatorio[0] === matrix[filaActual[0]][columnaAleatoria[0]-1])){
           reiniciar_casilla(filaActual, columnaAleatoria);
           columnaAleatoria[0]--;
-          unir_numeros_vertical(numAleatorio, filaActual, columnaAleatoria, matrix);  //pausa segun los mls ingresados
-          flagAction = true;
-          return;
+          sumar_casillas(numAleatorio);
         }else if (matrix[filaActual[0]][columnaAleatoria[0]-1] === 0){
           reiniciar_casilla(filaActual, columnaAleatoria);
           columnaAleatoria[0]--;
           mover_numero_de_casilla(filaActual, columnaAleatoria, numAleatorio);
+          reiniciar_casilla_generacion_numero([columnaAleatoria[0]+1])
         }
       }
-      reiniciar_casilla_generacion_numero([columnaAleatoria[0]+1])
       break;
     case 'ArrowRight':
       if(columnaAleatoria[0] < 3){
         if((numAleatorio[0] === matrix[filaActual[0]][columnaAleatoria[0]+1])){
           reiniciar_casilla(filaActual, columnaAleatoria);
           columnaAleatoria[0]++;
-          unir_numeros_vertical(numAleatorio, filaActual, columnaAleatoria, matrix);  //pausa segun los mls ingresados
-          flagAction = true;
-          return;
+          sumar_casillas(numAleatorio);
         }else if (matrix[filaActual[0]][columnaAleatoria[0]+1] === 0){
           reiniciar_casilla(filaActual, columnaAleatoria);
           columnaAleatoria[0]++;
           mover_numero_de_casilla(filaActual, columnaAleatoria, numAleatorio);
+          reiniciar_casilla_generacion_numero([columnaAleatoria[0]-1])
         }
       }
-      reiniciar_casilla_generacion_numero([columnaAleatoria[0]-1])
       break;
     case 'ArrowDown':
 
       break;
   }}
   });
-
-//Confirma que en la primera fila haya un 0()
-function confirmar_movimientos_en_matriz(matrix){
-  for (let j = 0; j < matrix.length; j++) { //For que recorre las columnas de la matriz
-    if(matrix[0][j] === 0)                  //Si en la fila 0 columna actual hay un 0 
-      return true;                          
-  }
-  return false;//Si se acaba la ejecucioin del for y no se encontro un 0 se retorna false
-}
-
-
 
 //Comprueba si ya se perdio la partida o no
 function comprobar_condicion_partida(matrix, columna, num){
@@ -88,7 +73,7 @@ Funcion caida
 */
 
 async function caida(num, fila, columna, matrix){
-  let mlsMovientoCasilla = 1500;                         //pausa entre cada moviento de casilla
+  let mlsMovientoCasilla = 1000;                         //pausa entre cada moviento de casilla
   await esperar(mlsMovientoCasilla);                      //pausa la ejecucion segun los mls enviados
   reiniciar_casilla_generacion_numero(columna);           //se coloca la casilla de generacion con los valores por defecto
   for(fila[0] = 0;fila[0]<matrix.length;fila[0]++){
@@ -100,19 +85,16 @@ async function caida(num, fila, columna, matrix){
       return;
     }
     else if(matrix[fila[0]][columna[0]] === num[0]){            //caso en el que el numero generado sea igual al de la casilla actual
+      reiniciar_casilla(fila, columna);              //borra la casilla actual           
       await unir_numeros_vertical(num, fila, columna, matrix);  //pausa segun los mls ingresados
-      fila[0] = 0;
       return;                                  
     }
     
     //generacion de efecto de caida por default, lo que se hace es colocar el numero en la casilla actual, pausar, continuar y borrar el actual0
     mover_numero_de_casilla(fila, columna, num);   //caso por default, mueve el numero a la casilla actual
     await esperar(mlsMovientoCasilla);             //pausa de x mls para generar el efecto de caida
-    if(flagAction){
-      flagAction = false;
-      return;
-    }
-    reiniciar_casilla(fila, columna);              //borra la casilla actual           
+    reiniciar_casilla(fila, columna);              //borra la casilla actual         
+    matrix[fila[0]][columna[0]] = 0;  
     reiniciar_casilla_generacion_numero(columna);  //se coloca la casilla de generacion con los valores por defecto
   }
   fila[0]--;
@@ -126,41 +108,40 @@ async function caida(num, fila, columna, matrix){
   Al encontrar una casilla adyacente vertical, con el mismo valor, se une en una sola multiplicando su valor por 2.
   Este proceso, al entrar a la funcion, se hace al menos 1 vez, y despues se va verificando si debajo de esta casilla se produce el mismo efecto.
 */
+function sumar_casillas(num){
+  num[0] *= 2;                            //numero ingresado multiplicado por dos
+  matrix[filaActual[0]][columnaAleatoria[0]] = num[0];//se coloca el numero duplicado en la casilla (efecto de union)
+  mover_numero_de_casilla(filaActual, columnaAleatoria, num);   //efecto de union en la parte grafica 
+}
+
 async function unir_numeros_vertical(num, fila, columna, matrix){
-  const mlsMovientoCasilla = 1000;                //mls de espera cuando cada vez que se produce el efecto de unir dos casillas
-  let dNum = num[0] * 2;                          //numero ingresado multiplicado por dos
-  matrix[fila[0]][columna[0]] = dNum;             //se coloca el numero duplicado en la casilla (efecto de union)
-  mover_numero_de_casilla(fila, columna, [dNum]); //efecto de union en la parte grafica 
-  while(fila[0] < matrix.length - 1 && dNum === matrix[fila[0] + 1][columna]){
-    await esperar(mlsMovientoCasilla);    //pausa la ejecucion del programa, segun los mls segundos enviados
+  const mlsMovientoCasilla = 500;                //mls de espera cuando cada vez que se produce el efecto de unir dos casillas
+  sumar_casillas(num);
+  while(fila[0] < matrix.length - 1 && num[0] === matrix[fila[0] + 1][columna[0]]){
+    await esperar(mlsMovientoCasilla);    //pausa la2 ejecucion del programa, segun los mls segundos enviados
     matrix[fila[0]][columna[0]] = 0;      //se coloca un 0 en la casilla actual 
-    reiniciar_casilla(fila, columna);     //se reinicia la casilla (es decir, se pone tal cual como esta al inicio de la ejecucion)
-    dNum *= 2;                            //se vuelve a duplicar el numero
-    fila[0] ++;
-    matrix[fila[0]][columna[0]] = dNum;     //se unen las casillas y se duplica el numero en la casilla de abajo
-    mover_numero_de_casilla(fila, columna, [dNum]);   //se produce el mismo efecto anterior graficamente
+    reiniciar_casilla(fila, columna);     //se reinicia la casilla (es decir, se pone tal cual como esta al inicio de la ejecucion)               
+    fila[0]++;
+    sumar_casillas(num);
   }
-  bajar_casillas_superiores();
+  fila[0] = 0//acomodarNumeros(fila, columna, matrix);
 }
 
-//de momento no se usa
+//de momento no se usa[PROTOTIPO]
 function acomodarNumeros(fila, columna, matrix){
-  while(fila > 0){
-    cambiar_color_casilla(fila, columna,'#9A80E1');
-    cambiar_numero_casilla(fila, columna,  matrix[fila - 1][columna]);
-    matrix[fila][columna] = matrix[fila - 1][columna];
-    matrix[fila - 1][columna] = 0;
-    cambiar_color_casilla(fila - 1,columna,'#9A80E1');
-    borrar_numero_casilla(fila, columna);
-    fila--;
+  for(let i = fila[0];i>0;i--){
+    console.log(matrix[i][columnaAleatoria[0]])
+    if(matrix[i][columnaAleatoria[0]] != 0){
+      fila[0] = i;
+      numAleatorio = matrix[i][columnaAleatoria[0]];
+      return i;
+    }
   }
+  return 0;
 }
 
-function bajar_casillas_superiores(){
-  for(let i = filaActual[0]; i > 0; i--){
-//    if(matr)
-  }
-}
+
+
 //Cambiar el color de la casilla segun la fila, columna y fila al color de entrada(formato: #123456)
 function cambiar_color_casilla(fila,columna,color){
   const casilla = document.getElementById('casilla'+(fila[0])+columna[0]);
