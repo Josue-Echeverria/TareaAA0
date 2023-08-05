@@ -6,6 +6,7 @@ let matrix = [
     [0,0,0,0],
     [0,0,0,0]
   ];
+iniciar_cronometro();
 
 let columnaAleatoria = [1];
 let filaActual = [0];
@@ -16,7 +17,7 @@ async function main(){
  
   //Se genera el numero random que va a caer
   numAleatorio[0] = random_2_or_4_or_8();
- 
+  actualizar_suma_de_piezas(numAleatorio[0]);
   let arrayTemp = [0];
   for(let columna = 0; columna <4; columna++){
     arrayTemp[0] = columna;
@@ -31,6 +32,7 @@ async function main(){
   }
   else{
     inGame =false;
+    perder();
     return;
   }
 }

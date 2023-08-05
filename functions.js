@@ -13,12 +13,17 @@ function random_2_or_4_or_8(){
   else
     return 2;
 }
+let numero_movimientos = 0;
+let suma_de_piezas_en_juego = 0;
 let flagAction = false;
 let inGame = true;
 let mlsMovientoCasilla = 1000;
+let contador_segundos = 0;
+let contador_minutos = 0;
 document.addEventListener('keydown',function(event) {
   if(inGame){
-  switch (event.key) {
+  
+  switch (event.key){
     case 'ArrowLeft':
       if((columnaAleatoria[0] > 0) ){
         if((numAleatorio[0] === matrix[filaActual[0]][columnaAleatoria[0]-1])){
@@ -26,11 +31,13 @@ document.addEventListener('keydown',function(event) {
           columnaAleatoria[0]--;
           sumar_casillas(numAleatorio);
           acomodarNumeros(matrix);
+          actualizar_numero_movimientos();
         }else if (matrix[filaActual[0]][columnaAleatoria[0]-1] === 0){
           reiniciar_casilla(filaActual, columnaAleatoria);
           columnaAleatoria[0]--;
           mover_numero_de_casilla(filaActual, columnaAleatoria, numAleatorio);
           reiniciar_casilla_generacion_numero([columnaAleatoria[0]+1])
+          actualizar_numero_movimientos();
         }
       }
       break;
@@ -41,11 +48,13 @@ document.addEventListener('keydown',function(event) {
           columnaAleatoria[0]++;
           sumar_casillas(numAleatorio);
           acomodarNumeros(matrix);
+          actualizar_numero_movimientos();
         }else if (matrix[filaActual[0]][columnaAleatoria[0]+1] === 0){
           reiniciar_casilla(filaActual, columnaAleatoria);
           columnaAleatoria[0]++;
           mover_numero_de_casilla(filaActual, columnaAleatoria, numAleatorio);
           reiniciar_casilla_generacion_numero([columnaAleatoria[0]-1])
+          actualizar_numero_movimientos();
         }
       }
       break;
@@ -81,8 +90,6 @@ async function caida(num, fila, columna, matrix){
   mlsMovientoCasilla = 1000;                         //pausa entre cada moviento de casilla
   await esperar(mlsMovientoCasilla);                      //pausa la ejecucion segun los mls enviados
   reiniciar_casilla_generacion_numero(columna);           //se coloca la casilla de generacion con los valores por defecto
-  
-  const arrowKeys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
 
   for(fila[0] = 0;fila[0]<matrix.length;fila[0]++){
     
@@ -140,7 +147,7 @@ async function unir_numeros_vertical(num, fila, columna, matrix){
 }
 
 //de momento no se usa[PROTOTIPO]
-function acomodarNumeros2(fila, columna, matrix){
+function acomodarNumeros2(fila, matrix){
   console.log("Acomondando numeros")
   for(let i = fila[0];i>0;i--){
     console.log(matrix[i][columnaAleatoria[0]])
@@ -227,4 +234,86 @@ function reiniciar_casilla_generacion_numero(columna){
 function mover_numero_de_casilla(fila, columna, num){
   cambiar_color_casilla(fila, columna,'#FFFFFF');
   cambiar_numero_casilla(fila, columna,  num);
+}
+
+function actualizar_numero_movimientos(){
+  numero_movimientos++;
+  const casilla = document.getElementById('numero_de_movimientos');
+  casilla.textContent = numero_movimientos;
+}
+
+function actualizar_cronometro(minutos,segundos){
+  if(Math.floor(segundos / 10) === 0){
+    segundos = "0"+segundos;
+  }
+  const casilla = document.getElementById('tiempo');
+  casilla.textContent = minutos + " : " + segundos;
+}
+
+async function iniciar_cronometro(){
+  while(true){
+    await esperar(1000);
+    if(contador_segundos == 60){
+      contador_minutos++;
+      contador_segundos = 0;
+    }
+    actualizar_cronometro(contador_minutos,contador_segundos);
+    contador_segundos++;
+    if(!inGame)
+      break;
+  }
+}
+
+function actualizar_suma_de_piezas(num){
+  suma_de_piezas_en_juego += num;
+  const casilla = document.getElementById('suma_de_piezas');
+  casilla.textContent = suma_de_piezas_en_juego;
+}
+
+function perder(){
+  const div = document.getElementById('game_over_screen');
+  const casilla = document.getElementById('tiempo_final');
+  casilla.textContent = contador_minutos + " : " + contador_segundos;
+  const casilla1 = document.getElementById('suma_de_piezas_final');
+  casilla1.textContent = suma_de_piezas_en_juego;
+  const casilla2 = document.getElementById('numero_de_movimientos_final');
+  casilla2.textContent = numero_movimientos;
+  div.style.display = "flex";
+
+  /*
+  actualizar_suma_de_piezas(numAleatorio[0]*-1);
+  numero_movimientos--;
+  actualizar_numero_movimientos();
+  actualizar_cronometro(contador_minutos,contador_segundos);*/
+}
+
+const restart_button = document.getElementById("restart_button");
+restart_button.addEventListener('click', function() {
+  const div = document.getElementById('game_over_screen');
+  div.style.display = 'none';
+  restart_game();
+});
+
+function restart_game(){
+  numero_movimientos = -1;
+  actualizar_numero_movimientos();
+  suma_de_piezas_en_juego = 0;
+  columnaAleatoria = [0];
+  filaActual = [0];
+  numAleatorio = [0];
+  inGame = true;
+  contador_minutos = 0;
+  contador_segundos = 0;
+  iniciar_cronometro();
+  for(let i = 0;i<5;i++){
+    for(let j = 0;j<4;j++){
+      matrix[i][j] = 0;
+      if(i === 0){
+        reiniciar_casilla_generacion_numero([j]);
+        continue;
+      }
+      reiniciar_casilla([i],[j]);
+    }
+  }
+  main();
 }
