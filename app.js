@@ -24,10 +24,11 @@ async function main(){
     reiniciar_casilla_generacion_numero(arrayTemp);
   }
   filaActual[0] = 0;
-  mover_numero_de_casilla(filaActual, columnaAleatoria, numAleatorio)
-
-  if(comprobar_condicion_partida(matrix, columnaAleatoria[0], numAleatorio)){
-    await caida(numAleatorio, filaActual, columnaAleatoria, matrix);
+  //mover_numero_de_casilla(filaActual, columnaAleatoria, numAleatorio);
+  //matrix[filaActual[0]][columnaAleatoria[0]] = numAleatorio[0];
+  //await esperar(500);                      //pausa la ejecucion segun los mls enviados
+  if(comprobar_condicion_partida(matrix, columnaAleatoria, numAleatorio)){
+  await caida(numAleatorio, filaActual, columnaAleatoria, matrix);
     main();
   }
   else{
