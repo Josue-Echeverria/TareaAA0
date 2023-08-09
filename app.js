@@ -1,41 +1,32 @@
 //Matriz de globlal de logica 
-let matrix = [
-    [0,0,0,0],
-    [0,0,0,0],
-    [0,0,0,0],
-    [0,0,0,0],
-    [0,0,0,0]
+const actual = {
+  fila: 0,
+  columna: 1,
+  numero: 0
+}  
+matrix = [
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0]
   ];
 iniciar_cronometro();
 
-let columnaAleatoria = [1];
-let filaActual = [0];
-let numAleatorio = [0];
 async function main(){  
-  //Se genera el numero de la columna en que el numero va a caer
-  columnaAleatoria[0] = Math.floor(Math.random() * 4);
- 
-  //Se genera el numero random que va a caer
-  numAleatorio[0] = random_2_or_4_or_8();
-  actualizar_suma_de_piezas(numAleatorio[0]);
-  let arrayTemp = [0];
-  for(let columna = 0; columna <4; columna++){
-    arrayTemp[0] = columna;
-    reiniciar_casilla_generacion_numero(arrayTemp);
-  }
-  filaActual[0] = 0;
-  //mover_numero_de_casilla(filaActual, columnaAleatoria, numAleatorio);
-  //matrix[filaActual[0]][columnaAleatoria[0]] = numAleatorio[0];
-  //await esperar(500);                      //pausa la ejecucion segun los mls enviados
-  if(comprobar_condicion_partida(matrix, columnaAleatoria, numAleatorio)){
-  await caida(numAleatorio, filaActual, columnaAleatoria, matrix);
-    main();
-  }
-  else{
-    inGame =false;
+  if(!inGame){
     perder();
-    return;
+    return
   }
+  actual.columna = Math.floor(Math.random() * 4);  // Se genera el número de la columna en que el número va a caer
+  actual.numero = random_2_or_4_or_8();               // Se genera el número random que va a caer
+  actual.fila = 0;
+  actualizar_suma_de_piezas(actual.numero);
+  for (let columna = 0; columna < 4; columna++) {
+    reiniciar_casilla_generacion_numero(columna);
+  }
+  await caida(actual.numero, actual.fila, actual.columna, matrix);
+  main();
 }
 
 main()
