@@ -6,6 +6,14 @@ let mlsMovientoCasilla = 1000;
 let contador_segundos = 0;
 let contador_minutos = 0;
 
+/*
+Funcion que pausa la ejecucion del programa 
+ENTRADAS:
+  @ms: tiempo en milisegundos, que se desea pausar el programa
+SALIDAS:
+  Pausar la ejecucion del programa
+*/
+
 function esperar(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -175,7 +183,7 @@ DESCRIPCION:
   En ese caso se termina la funcion
   (Bajar signinifica escribir el numero en la posicion actual y eliminarlo de la fila anterior)
 */
-async function caida(numero, fila, columna, matrix){
+async function caida(columna, matrix){
   mlsMovientoCasilla = 1000;//cantidad de milisegundos para la pausa entre cada moviento de casilla
   reiniciar_casilla_generacion_numero(columna);//se coloca la casilla de generacion(casilla en la fila 0) con los valores por defecto
   for(actual.fila = 0; actual.fila < matrix.length; actual.fila++){//For para recorrer las filas de la matriz
@@ -189,7 +197,7 @@ async function caida(numero, fila, columna, matrix){
       return;
     } else if(matrix[actual.fila][actual.columna] === actual.numero){//caso en el que el numero generado sea igual al de la casilla actual
       reiniciar_casilla(actual.fila, actual.columna);//borra la casilla actual           
-      await unir_numeros_vertical(actual.numero, actual.fila, actual.columna, matrix);//Se empiezan a unir los numeros 
+      await unir_numeros_vertical();//Se empiezan a unir los numeros 
       return;                                  
     }
     //generacion de efecto de caida por default, lo que se hace es colocar el numero en la casilla actual, pausar, continuar y borrar el actual0
@@ -221,28 +229,35 @@ async function sumar_casillas(numero){
   mover_numero_de_casilla(actual.fila, actual.columna, numero);//efecto de union en la parte grafica
 }
 
-//CAMBIAR EESTA FUNCION
-async function unir_numeros_vertical(numero, fila, columna, matrix){
+/*
+Une casillas de forma horizontal
+SALIDA:
+  La union vertical de numeros para una columna.
+DESCRIPCION:
+  Une dos casillas en forma vertical
+  Repite el proceso hasta que ya no se puedan unir mas.
+*/
+async function unir_numeros_vertical(){
   const mlsMovientoCasilla = 500;//mls de espera cuando cada vez que se produce el efecto de unir dos casillas
-  sumar_casillas(actual.numero);
-  actual.numero*=2;
-  while(actual.fila < matrix.length - 1){
-    await esperar(mlsMovientoCasilla);//pausa la2 ejecucion del programa, segun los mls segundos enviados
-    if(actual.fila === matrix.length-1){
+  sumar_casillas(actual.numero); //se suman las casillas para unirlas
+  actual.numero*=2; //duplica el numero actual
+  while(actual.fila < matrix.length - 1){ //repite el proceso hasta que ya no se puedan unir mas
+    await esperar(mlsMovientoCasilla);//pausa la ejecucion del programa, segun los ms segundos enviados
+    if(actual.fila === matrix.length-1){//verifica si la fila actual se encuentra en la ultima fila para salirse
       break;
     }
-    if(actual.numero  === matrix[actual.fila + 1][actual.columna]){
+    if(actual.numero === matrix[actual.fila + 1][actual.columna]){//comprueba si el numero actual es igual a al que esta en la casilla inferior
       matrix[actual.fila][actual.columna] = 0;//se coloca un 0 en la casilla actual 
       reiniciar_casilla(actual.fila, actual.columna);//se reinicia la casilla (es decir, se pone tal cual como esta al inicio de la ejecucion)               
-      actual.fila++;
-      sumar_casillas(actual.numero);
-      actual.numero*=2;
-    }else{
+      actual.fila++;//incrementa la fila actual
+      sumar_casillas(actual.numero);//une la casilla actual con la inferior
+      actual.numero*=2;//duplica el numero
+    }else{//caso en el que no haya que unir, simplemente detiene el ciclo
       break;
     }
   }
-  acomodarNumeros(actual.columna);
-  actual.fila = 0;
+  acomodarNumeros(actual.columna);//acomoda los numeros de la columna actual, para evitar dejar espacios vacios entre casillas
+  actual.fila = 0;//reinicia la fila actual
 }
 
 /*
@@ -285,9 +300,19 @@ async function acomodarNumeros(columna){
   return 0;
 }
 
-
-
-//Cambiar el color de la casilla segun la fila, columna y fila al color de entrada(formato: #123456)
+/*
+Cambia el color de una casilla
+ENTRADAS:
+  @fila: fila a moficar
+  @columna: columna a modificar
+  @color: color a colocar en la casilla
+SALIDAS:
+  La casilla modificada con el color enviado
+DESCRIPCION:
+  Cambia el color de la casilla segun la fila y columna.
+  Verifica que la casilla no sea nula, es decir que las posiciones enviadas sean validas
+  Usa el formato de entrada #123456
+*/
 function cambiar_color_casilla(fila, columna, color){
   const casilla = document.getElementById('casilla' + fila + columna);
   if(casilla != null){
@@ -296,7 +321,18 @@ function cambiar_color_casilla(fila, columna, color){
   
 }
 
-//Cambiar el numero de una casilla.
+/*
+Cambia el numero de una casilla
+ENTRADAS:
+  @fila: fila a moficar
+  @columna: columna a modificar
+  @numero: numero a colocar en la casilla
+SALIDAS:
+  La casilla modificada con el numero enviado
+DESCRIPCION:
+  Cambia el numero de la casilla segun la fila y columna.
+  Verifica si el numero no es nulo.
+*/
 function cambiar_numero_casilla(fila, columna, numero){
   const casilla = document.getElementById('casilla'+ fila + columna);
   if(numero !== null ){
@@ -306,7 +342,18 @@ function cambiar_numero_casilla(fila, columna, numero){
   }
 }
 
-//borra un numero de una casilla
+/*
+borra el numero de una casilla
+ENTRADAS:
+  @fila: fila a borrar
+  @columna: columna a borrar
+SALIDAS:
+  La casilla con el numero borrado
+DESCRIPCION:
+  Borra el numero de la casilla segun la fila y columna.
+  Verifica que la casilla no sea nula, es decir que las posiciones enviadas sean validas
+  Coloca en null el contenido de la casilla
+*/
 function borrar_numero_casilla(fila, columna){
   const casilla = document.getElementById('casilla' + fila + columna);
   if(casilla != null){
@@ -316,30 +363,80 @@ function borrar_numero_casilla(fila, columna){
   
 }
 
-//Le pone el color inicial y le borra el numero a una casilla
+/*
+Reinicia una casilla, es decir, le coloca el color inicial y le borra el numero
+ENTRADAS:
+  @fila: fila a moficar
+  @columna: columna a modificar
+
+SALIDAS:
+  La casilla reiniciada
+DESCRIPCION:
+  Le pone el color original a la casilla segun la fila y columna.
+  El color usa el formato de entrada #123456
+*/
 function reiniciar_casilla(fila, columna){
   cambiar_color_casilla(fila, columna, '#9A80E1');
   borrar_numero_casilla(fila, columna);
 }
 
-//Le pone el color inicial y le borra el numero a una casilla que genera numeros
+/*
+Reinicia una casilla de generacion de numeros, es decir, le coloca el color inicial y le borra el numero
+ENTRADAS:
+  @columna: columna a modificar
+SALIDAS:
+  La casilla de generacion reiniciada
+DESCRIPCION:
+  Le pone el color original a la casilla de generacion de numeros segun la fila y columna.
+  El color usa el formato de entrada #123456
+*/
 function reiniciar_casilla_generacion_numero(columna){
   cambiar_numero_casilla(0, columna, null);
   cambiar_color_casilla(0, columna, "#6437E1");
 }
 
-//mueve el numero de una casilla a otra
+/*
+Mueve el numero a otra casilla, y le pone color
+ENTRADAS:
+  @fila: fila a moficar
+  @columna: columna a modificar
+  @num: numero a colocar en la casilla
+SALIDAS:
+  La casilla modificada con el numero y color correspondiente
+DESCRIPCION:
+  Le pone el color blanco a la casilla 
+  El color usa el formato de entrada #123456
+  Y finalmente le pone el numero enviado
+*/
 function mover_numero_de_casilla(fila, columna, num){
   cambiar_color_casilla(fila, columna,'#FFFFFF');
   cambiar_numero_casilla(fila, columna,  num);
 }
 
+/*
+Mueve el numero a otra casilla, y le pone color
+ENTRADAS:
+SALIDAS:
+  Aumenta en 1 el numero de movientos realizados hasta el momento
+DESCRIPCION:
+  Le suma 1 al numero de movientos y lo actualiza en la parte grafica
+*/
 function actualizar_numero_movimientos(){
   numero_movimientos++;
   const casilla = document.getElementById('numero_de_movimientos');
   casilla.textContent = numero_movimientos;
 }
 
+/*
+Actualiza el cronometro
+ENTRADAS:
+  @minutos: minutos actuales
+  @segundos: segundos actuales
+SALIDAS:
+  Actualiza graficamente el cronometro 
+DESCRIPCION:
+  Se actualiza el cronometro graficamente
+*/
 function actualizar_cronometro(minutos,segundos){
   if(Math.floor(segundos / 10) === 0){
     segundos = "0"+segundos;
@@ -348,6 +445,15 @@ function actualizar_cronometro(minutos,segundos){
   casilla.textContent = minutos + " : " + segundos;
 }
 
+/*
+Inicia el cronometro
+ENTRADAS:
+SALIDAS:
+  Iniciar el cronometro
+DESCRIPCION:
+  Se inicia el cronometro
+  Se sigue actualizando mientras la partida no hay finalizado
+*/
 async function iniciar_cronometro(){
   while(true){
     await esperar(1000);
@@ -362,12 +468,34 @@ async function iniciar_cronometro(){
   }
 }
 
+/*
+Actualiza la sumatoria de las piezas en la matrix
+ENTRADAS:
+  @num: cada numero aleatorio que se vaya generando
+SALIDAS:
+  La suma entre el nuevo rand y la sumatoria actual
+DESCRIPCION:
+  Va llevando la sumatorio actual y le agrega cada numero ingresado
+  Lo actualiza graficamente
+*/
 function actualizar_suma_de_piezas(num){
   suma_de_piezas_en_juego += num;
   const casilla = document.getElementById('suma_de_piezas');
   casilla.textContent = suma_de_piezas_en_juego;
 }
 
+/*
+Funcion de game over
+ENTRADAS:
+SALIDAS:
+  Se despliega una pantalla con el resumen de la partida
+DESCRIPCION:
+  Se le indica al usuario que se perdio
+  Se despliega el resumen que contiene:
+    El tiempo total
+    Movimientos totales realizados
+    Sumatorio total de las piezas en la matriz
+*/
 function perder(){
   const div = document.getElementById('game_over_screen');
   const casilla = document.getElementById('tiempo_final');
@@ -380,6 +508,12 @@ function perder(){
 
 }
 
+/*
+Listener que verifica si se pulsa el boton de reiniciar la partida
+DESCRIPCION:
+  Se despliega una vez finalizada la partida
+  En caso de seleccionar reiniciar partida se llama a la funcion que ejecuta dicho proceso
+*/
 const restart_button = document.getElementById("restart_button");
 restart_button.addEventListener('click', function() {
   const div = document.getElementById('game_over_screen');
@@ -387,6 +521,18 @@ restart_button.addEventListener('click', function() {
   restart_game();
 });
 
+/*
+Reinicia una nueva partida
+ENTRADAS:
+SALIDAS:
+  Una nueva partida desde cero
+DESCRIPCION:
+  Reinicia los datos del resumen de la partida
+  Reinicia las posiciones actuales y el numero
+  Reinicia la condicion de juego 
+  Y recorre todas las casilla para reiniciar el numero y sus colores.
+  Finalmente llama de nuevo al main
+*/
 function restart_game(){
   numero_movimientos = -1;
   actualizar_numero_movimientos();

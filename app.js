@@ -36,7 +36,7 @@ async function main(){
   for (let columna = 0; columna < 4; columna++) {//For para recorrer las columnas 
     reiniciar_casilla_generacion_numero(columna);//Se elimina cualquier numero que se encuentre en la fila 0
   }
-  await caida(actual.numero, actual.fila, actual.columna, matrix);//funcion que baja el numero fila por fila en la columna que se genero 
+  await caida(actual.columna, matrix);//funcion que baja el numero fila por fila en la columna que se genero 
   main();//Se vuelve al inicio de la funcion main 
 }
 
