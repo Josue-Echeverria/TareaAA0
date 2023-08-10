@@ -10,14 +10,21 @@ function esperar(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-//Retorna el numero 2 o 4 o 8 (Aleatoriamente)
+/*
+Funcion que genera un 2 o un 4 o un 8 aleatoriamente
+ENTRADAS:
+
+SALIDAS:
+  +Numero 2 o 4 o 8(aleatoriamente)  
+DESCRIPCION:
+  Para replicar la generacion de numeros del juego la cual es aleatorio entre 2,4 o 8
+*/
 function random_2_or_4_or_8(){
-  const random = Math.floor(Math.random() * 3);
+  const random = Math.floor(Math.random() * 3);//Se genera un numero aleatorio del 0 al 3
   if(random === 1)
     return 4;
-  else if(random == 2){
+  else if(random == 2)
     return 8;
-  }
   else
     return 2;
 }
@@ -96,7 +103,7 @@ function tecla_derecha_presionada(){
 /*
 Suma de casillas de forma horizontal
 ENTRADAS:
-  +Orientacion: Hacia el lado del que se debe de sumar la casilla(derecha = 1, izquierda = -1)
+  @Orientacion: Hacia el lado del que se debe de sumar la casilla(derecha = 1, izquierda = -1)
 SALIDAS:
   +Casilla resultado de la suma de forma grafica y logica
 DESCRIPCION:
@@ -107,7 +114,7 @@ DESCRIPCION:
 function suma_horizontal(orientacion){
   reiniciar_casilla(actual.fila, actual.columna);//Se elimina de forma grafica la casilla actual
   matrix[actual.fila][actual.columna] = 0;//Se elimina de forma logica(en la matriz) en la casilla actual
-  acomodarNumeros(actual.columna);//Se acomodan los numeros en los que la casilla se elimino
+  acomodarNumeros(actual.columna);//Se acomodan los numeros de la columna de la casilla que se elimino
   actual.columna+=orientacion;//La columna actual cambia dependiendo hacia donde se movieron las flechas(derecha = 1, izquierda = -1)
   sumar_casillas(actual.numero);//Se suman las casillas 
   actual.numero*=2;//Se actualiza el numero ya que ahora es el resultado de la suma de casillas
@@ -118,7 +125,7 @@ function suma_horizontal(orientacion){
 /*
 Movimiento de casillas de forma horizontal
 ENTRADAS:
-  +Orientacion: Hacia el lado del que se debe de mover la casilla(derecha = 1, izquierda = -1)
+  @Orientacion: Hacia el lado del que se debe de mover la casilla(derecha = 1, izquierda = -1)
 SALIDAS:
   +Movimiento de la casilla actual hacia la derecha o izquierda de forma grafica y logica
 DESCRIPCION:
@@ -127,102 +134,110 @@ DESCRIPCION:
   La casilla generada pasa a ser la actual
 */ 
 function mover_horizontalmente(orientacion){
-  reiniciar_casilla(actual.fila, actual.columna);
-  matrix[actual.fila][actual.columna] = 0;
-  acomodarNumeros(actual.columna);
-  actual.columna+=orientacion;
-  matrix[actual.fila][actual.columna] = actual.numero;
-  mover_numero_de_casilla(actual.fila, actual.columna, actual.numero);
-  reiniciar_casilla_generacion_numero(actual.columna-orientacion)
+  reiniciar_casilla(actual.fila, actual.columna);//Se elimina de forma grafica la casilla actual
+  matrix[actual.fila][actual.columna] = 0;//Se elimina de forma logica(en la matriz) en la casilla actual
+  acomodarNumeros(actual.columna);//Se acomodan los numeros de la columna de la casilla que se elimino
+  actual.columna+=orientacion;//La columna actual se mueve dependiendo hacia donde se movieron las flechas(derecha = 1, izquierda = -1)
+  matrix[actual.fila][actual.columna] = actual.numero;//Se genera la casilla en la matriz de logica
+  mover_numero_de_casilla(actual.fila, actual.columna, actual.numero); //Se genera la casilla de forma grafica
+  reiniciar_casilla_generacion_numero(actual.columna-orientacion);//Se elimina la casilla en la de la fila 0
   actualizar_numero_movimientos();
 }
 
-
-
-
-//Comprueba si ya se perdio la partida o no
+/*
+Funcion para comprobar si el usuario ya perdio
+ENTRADAS:
+  @numero: El numero que se genero
+  @columna: En la columna que va a caer el numero
+  @matrix: La matriz en la que el numero va a caer 
+SALIDA:
+  +True: si en la fila 1 y en la columna en la que va a caer el numero es 0 o 
+         si en la fila 1 y en la columna en la que va a caer el numero es igual al numero
+  +False: si en la fila 1 y en la columna en la que va a caer el numero es diferente de 0 y
+          si en la fila 1 y en la columna en la que va a caer el numero es diferente al numero
+*/
 function comprobar_condicion_partida(matrix, columna, numero){
   return matrix[1][columna] === 0 || matrix[1][columna] === numero;
 }
 
 /*
 Funcion caida
-+Entradas:
-  -numero: El numero que va a caer 
-  -fila: En la fila que va a caer
-  -columna: En la columna que va a caer el numero
-  -matrix: la matriz en la que el numero va a caer 
-+Funcion:
-  -Genera efecto de caida en la matriz
-  -El numero empieza en la fila 0
-  -El numero baja fila por fila hasta que se encuentre con otro nummero o el final de la matriz
-  -(Bajar signinifica escribir el numero en la posicion actual y eliminarlo de la fila anterior)
-+Salida:
-  -No hay salida ya que se modifica la matriz directamente(Como pasar por referencia en c++)
+ENTRADAS:
+  @numero: El numero que va a caer 
+  @fila: En la fila que va a caer
+  @columna: En la columna que va a caer el numero
+  @matrix: la matriz en la que el numero va a caer 
+SALIDA:
+  Efector de caida de casillas en el juego
+DESCRIPCION:
+  El numero empieza en la fila 0
+  El numero baja fila por fila hasta que se encuentre con otro nummero o el final de la matriz
+  En ese caso se termina la funcion
+  (Bajar signinifica escribir el numero en la posicion actual y eliminarlo de la fila anterior)
 */
 async function caida(numero, fila, columna, matrix){
-  mlsMovientoCasilla = 1000;                         //pausa entre cada moviento de casilla
-  reiniciar_casilla_generacion_numero(columna);           //se coloca la casilla de generacion con los valores por defecto
-
-  for(actual.fila = 0; actual.fila < matrix.length; actual.fila++){
-    if(matrix[actual.fila][actual.columna] !== actual.numero && matrix[actual.fila][actual.columna] !== 0 && actual.fila > 0){   //caso en el que se deba colocar un numero arriba de otro
-      actual.fila--;      
-      if(actual.fila === 0)
-      {
-        inGame = false;
-      }
-      mover_numero_de_casilla(actual.fila, actual.columna, actual.numero);    //coloca graficamente el numero en la casilla de arriba 
-      matrix[actual.fila][actual.columna] = actual.numero;           //lo mismo pero internamente en las matrices
+  mlsMovientoCasilla = 1000;//cantidad de milisegundos para la pausa entre cada moviento de casilla
+  reiniciar_casilla_generacion_numero(columna);//se coloca la casilla de generacion(casilla en la fila 0) con los valores por defecto
+  for(actual.fila = 0; actual.fila < matrix.length; actual.fila++){//For para recorrer las filas de la matriz
+    if(matrix[actual.fila][actual.columna] !== actual.numero && matrix[actual.fila][actual.columna] !== 0 && actual.fila > 0){//caso en el que se deba colocar un numero arriba de otro
+      actual.fila--;//Nos movemos a la fila de arriba
+      if(actual.fila === 0)//Si esta fila es la 0
+        inGame = false;//Significa que ya se perdio
+      mover_numero_de_casilla(actual.fila, actual.columna, actual.numero);//coloca graficamente el numero en la casilla de arriba 
+      matrix[actual.fila][actual.columna] = actual.numero;//lo mismo pero internamente en la matriz
       actual.fila = 0;
       return;
-    }
-    else if(matrix[actual.fila][actual.columna] === actual.numero){            //caso en el que el numero generado sea igual al de la casilla actual
-      reiniciar_casilla(actual.fila, actual.columna);              //borra la casilla actual           
-      await unir_numeros_vertical(actual.numero, actual.fila, actual.columna, matrix);  //pausa segun los mls ingresados
+    } else if(matrix[actual.fila][actual.columna] === actual.numero){//caso en el que el numero generado sea igual al de la casilla actual
+      reiniciar_casilla(actual.fila, actual.columna);//borra la casilla actual           
+      await unir_numeros_vertical(actual.numero, actual.fila, actual.columna, matrix);//Se empiezan a unir los numeros 
       return;                                  
     }
     //generacion de efecto de caida por default, lo que se hace es colocar el numero en la casilla actual, pausar, continuar y borrar el actual0
-    mover_numero_de_casilla(actual.fila, actual.columna, actual.numero);   //caso por default, mueve el numero a la casilla actual
-    matrix[actual.fila][actual.columna] = actual.numero;  
-    await esperar(mlsMovientoCasilla);             //pausa de x mls para generar el efecto de caida
-    reiniciar_casilla(actual.fila, actual.columna);              //borra la casilla actual         
+    mover_numero_de_casilla(actual.fila, actual.columna, actual.numero);//caso por default, mueve el numero a la casilla actual
+    matrix[actual.fila][actual.columna] = actual.numero;
+    await esperar(mlsMovientoCasilla);//pausa de x mls para generar el efecto de caida
+    reiniciar_casilla(actual.fila, actual.columna);//borra la casilla actual         
     matrix[actual.fila][actual.columna] = 0;  
     reiniciar_casilla_generacion_numero(actual.columna);  //se coloca la casilla de generacion con los valores por defecto
   }
   actual.fila--;
-  matrix[actual.fila][actual.columna] = actual.numero;         //se coloca el numero generadi en el fondo de la columna[0]
-  mover_numero_de_casilla(actual.fila, actual.columna, actual.numero);      //hace lo mismo pero graficamente
-  actual.fila = 0;
+  matrix[actual.fila][actual.columna] = actual.numero;//se coloca el numero generadi en el fondo de la columna[0]
+  mover_numero_de_casilla(actual.fila, actual.columna, actual.numero);//hace lo mismo pero graficamente
+  actual.fila = 0;//Para que vuelva a al principio de la matriz
 }
 
 /* 
-  En terminos generales produce el efecto de unir dos casillas que tengan en mismo valor.
+ENTRADAS:
+  @numero: el numero de entrada el cual se va a sumar
+SALIDAS:
+  Una casilla resultado de esa suma
+DESCRIPCION:
   Al encontrar una casilla adyacente vertical, con el mismo valor, se une en una sola multiplicando su valor por 2.
   Este proceso, al entrar a la funcion, se hace al menos 1 vez, y despues se va verificando si debajo de esta casilla se produce el mismo efecto.
 */
 async function sumar_casillas(numero){
-  numero *= 2;                            //numero ingresado multiplicado por dos
+  numero *= 2;//numero ingresado multiplicado por dos
   matrix[actual.fila][actual.columna] = numero;//se coloca el numero duplicado en la casilla (efecto de union)
-  mover_numero_de_casilla(actual.fila, actual.columna, numero);   //efecto de union en la parte grafica
+  mover_numero_de_casilla(actual.fila, actual.columna, numero);//efecto de union en la parte grafica
 }
+
 //CAMBIAR EESTA FUNCION
 async function unir_numeros_vertical(numero, fila, columna, matrix){
-  const mlsMovientoCasilla = 500;                //mls de espera cuando cada vez que se produce el efecto de unir dos casillas
+  const mlsMovientoCasilla = 500;//mls de espera cuando cada vez que se produce el efecto de unir dos casillas
   sumar_casillas(actual.numero);
   actual.numero*=2;
   while(actual.fila < matrix.length - 1){
-    await esperar(mlsMovientoCasilla);    //pausa la2 ejecucion del programa, segun los mls segundos enviados
+    await esperar(mlsMovientoCasilla);//pausa la2 ejecucion del programa, segun los mls segundos enviados
     if(actual.fila === matrix.length-1){
       break;
     }
     if(actual.numero  === matrix[actual.fila + 1][actual.columna]){
-      matrix[actual.fila][actual.columna] = 0;      //se coloca un 0 en la casilla actual 
-      reiniciar_casilla(actual.fila, actual.columna);     //se reinicia la casilla (es decir, se pone tal cual como esta al inicio de la ejecucion)               
+      matrix[actual.fila][actual.columna] = 0;//se coloca un 0 en la casilla actual 
+      reiniciar_casilla(actual.fila, actual.columna);//se reinicia la casilla (es decir, se pone tal cual como esta al inicio de la ejecucion)               
       actual.fila++;
       sumar_casillas(actual.numero);
       actual.numero*=2;
     }else{
-      //acomodarNumeros(matrix,columna);
       break;
     }
   }
@@ -230,33 +245,42 @@ async function unir_numeros_vertical(numero, fila, columna, matrix){
   actual.fila = 0;
 }
 
-//acomoda los numeros para no dejar espacios vacios entre casillas 
-//AREGLAR ESTA TAMBIEN
+/*
+ENTRADAS:
+  @columna: la columna en la que se acomodaran los numeros
+SALIDA:
+  Una columna completamente acomodada
+DESCRPICION:
+  Se recorre la columna desde abajo hasta arriba
+  Comparando siempre el de arriba con el actual
+  En caso que se encuentre dos casillas iguales
+    Las suma y se devuelve a la parte de abajo de la columna
+  En caso que se encuentre un numero arriba y un 0 debajo 
+    Mueve el numero hacia la posicion del 0
+*/
 
 async function acomodarNumeros(columna){
- // for(let i = 0; i < matrix.length - 1; i++){ //hace el for 4 veces para asegurar que se haga el proceso bien (se puede mejorar)
-    for(let fila = matrix.length - 1; fila > 1; fila--){ //empieza a recorrer desde la ultima fila hasta la fila 2
-      let filaArriba = fila - 1;                            //se obtiene la fila de arriba 
-      let num = matrix[filaArriba][columna];        //se obtiene el numero que este por arriba de la fila actual
-      if(num !== 0){       //comprueba que la casilla de arriba no este vacia
-        if(matrix[fila][columna] === 0){     //comprueba si la casilla actual esta vacia, para bajar el numero de arriba              
-          matrix[filaArriba][columna] = 0;   //le pone un cero a la casilla de arriba
-          reiniciar_casilla(filaArriba, columna);  //lo hace graficamente
-          matrix[fila][columna] = num;            //le coloca a la casilla actual el numero de arriba
-          mover_numero_de_casilla(fila,columna, num);//lo hace graficamente
-          fila = matrix.length;
-        }
-        else if(num === matrix[fila][columna]){ //comprueba si la casilla actual tiene el mismo numero que la de arriba, para unirlos
-          matrix[filaArriba][columna] = 0;         //pone la casilla de arriba vacia
-          reiniciar_casilla(filaArriba, columna);        //lo hace graficamente
-          actual.fila = fila;                                       //incrementa la fila actual, para llamar el metodo sumar la casilla que le correponde
-          sumar_casillas(num);                                    //suma las casillas y las une
-          num*=2;
-          if(actual.numero*2 === num)
-            actual.numero = num;//le pone al numero aleatorio el resultado de la union
-          acomodarNumeros(columna);
-        }
+  for(let fila = matrix.length - 1; fila > 1; fila--){ //empieza a recorrer desde la ultima fila hasta la fila 2
+    let filaArriba = fila - 1;//se obtiene la fila de arriba 
+    let num = matrix[filaArriba][columna];//se obtiene el numero que este por arriba de la fila actual
+    if(num !== 0){//comprueba que la casilla de arriba no este vacia
+      if(matrix[fila][columna] === 0){//comprueba si la casilla actual esta vacia, para bajar el numero de arriba              
+        matrix[filaArriba][columna] = 0;//le pone un cero a la casilla de arriba
+        reiniciar_casilla(filaArriba, columna);//lo hace graficamente
+        matrix[fila][columna] = num;//le coloca a la casilla actual el numero de arriba
+        mover_numero_de_casilla(fila,columna, num);//lo hace graficamente
+        fila = matrix.length;//Para que en la siguiente iteracion inicie desde abajo de nuevo
+      }else if(num === matrix[fila][columna]){ //comprueba si la casilla actual tiene el mismo numero que la de arriba, para unirlos
+        matrix[filaArriba][columna] = 0;//pone la casilla de arriba vacia
+        reiniciar_casilla(filaArriba, columna);//lo hace graficamente
+        actual.fila = fila;//actualiza la fila actual, para llamar el metodo sumar la casilla que le correponde
+        sumar_casillas(num);//suma las casillas
+        num*=2;//se actualiza el numero ya que este se sumó
+        if(actual.numero*2 === num)//Si el doble del numero actual es igual a num
+          actual.numero = num;//le pone al numero actual el resultado de la union
+        acomodarNumeros(columna);//Se acomodan los numeros que estan en la columna de las suma
       }
+    }
   }
   return 0;
 }
