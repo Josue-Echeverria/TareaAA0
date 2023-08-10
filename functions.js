@@ -22,65 +22,123 @@ function random_2_or_4_or_8(){
     return 2;
 }
 
+/*
+Listener de teclas presionadas
+DESCRIPCION: 
+  Cuando el usuario presiona alguna tecla se ejecuta el codigo de abajo.
+  Dentro del programa solo se necesita saber cuando estas teclas son las teclas de abajo, derecha o izquierda
+  Por lo tanto con un switch que abarque los casos es suficiente
+*/
 document.addEventListener('keydown',function(event) {
-  let { fila, columna, numero } = actual;
-  if(inGame){
-  
-  switch (event.key){
-    case 'ArrowLeft':
-      if((actual.columna > 0) ){
-        if((actual.numero === matrix[actual.fila][actual.columna-1])){
-          reiniciar_casilla(actual.fila, actual.columna);
-          matrix[actual.fila][actual.columna] = 0;
-          acomodarNumeros(actual.columna);
-          actual.columna--;
-          sumar_casillas(actual.numero);
-          actual.numero*=2;
-          acomodarNumeros(actual.columna);
-          actualizar_numero_movimientos();
-        }else if (matrix[actual.fila][actual.columna-1] === 0){
-          reiniciar_casilla(actual.fila, actual.columna);
-          matrix[actual.fila][actual.columna] = 0;
-          acomodarNumeros(actual.columna);
-          actual.columna--;
-          matrix[actual.fila][actual.columna] = actual.numero;
-          mover_numero_de_casilla(actual.fila, actual.columna, actual.numero);
-          //acomodarNumeros(matrix,actual.columna);
-          reiniciar_casilla_generacion_numero(actual.columna+1)
-          actualizar_numero_movimientos();
-        }
-      }
-      break;
-    case 'ArrowRight':
-      if(actual.columna < 3){
-        if((actual.numero === matrix[actual.fila][actual.columna+1])){
-          reiniciar_casilla(actual.fila, actual.columna);
-          matrix[actual.fila][actual.columna] = 0;
-          acomodarNumeros(actual.columna);
-          actual.columna++;
-          sumar_casillas(actual.numero);
-          actual.numero*=2;
-          acomodarNumeros(actual.columna);
-          actualizar_numero_movimientos();
-        }else if (matrix[actual.fila][actual.columna+1] === 0){
-          reiniciar_casilla(actual.fila, actual.columna);
-          matrix[actual.fila][actual.columna] = 0;
-          acomodarNumeros(actual.columna);
-          actual.columna++;
-          matrix[actual.fila][actual.columna] = actual.numero;
-          mover_numero_de_casilla(actual.fila, actual.columna, actual.numero);
-         // acomodarNumeros(matrix,actual.columna);
-          reiniciar_casilla_generacion_numero(actual.columna-1)
-          actualizar_numero_movimientos();
-        }
-      }
-      break;
-      case 'ArrowDown':
-        mlsMovientoCasilla = 200;
+  if(inGame){//Primero se confirma si el usuario no ha perdido
+    switch (event.key){//Se crea un switch con la tecla que se presiono 
+      case 'ArrowLeft'://Caso que la tecla izquierda se presione
+        tecla_izquierda_presionada();
+        break;
+      case 'ArrowRight'://Caso que la tecla derecha se presione
+        tecla_derecha_presionada();
+        break;
+      case 'ArrowDown'://Caso que la tecla de abajo se presione
+        mlsMovientoCasilla = 200;//Se reduce el tiempo con el que las piezas caen a 2 segundos
         break;
     }
   }
 });
+
+/*
+Funcion cuando se presiona la tecla izquierda
+ENTRADAS:
+
+SALIDAS:
+  Representacion grafica y logica del movimiento hacia la izquierda de la casilla que esta cayendo 
+
+DESCRIPCION:
+  Esta funcion solo se ejecuta en caso que el usuario haya presionado la tecla izquierda
+  Confirma que la casilla que esta cayendo se puede mover hacia la izquierda(No esta en la columna 0)
+  En caso que se puede mover
+    Confirma si este movimiento provoca una suma de casillas(casilla de la izquierda es igual a la casilla cayendo)
+    O si solo se mueve a un espacio vacio
+*/ 
+function tecla_izquierda_presionada(){
+  if((actual.columna > 0) ){//Si nos encontramos en alguna columna que sea mayor a la 0
+    if(actual.numero === matrix[actual.fila][actual.columna-1]){//Si la casilla cayendo es igual a la casilla de la izquierda
+      suma_horizontal(-1);//Se pueden sumar horizontalmente a la izquierda
+    }else if (matrix[actual.fila][actual.columna-1] === 0){//Si el espacio de la izquierda es igual a 0(esta vacio)
+      mover_horizontalmente(-1);//La casilla cayendo se mueve a la izquierda
+    }
+  }
+}
+
+/*
+Funcion cuando se presiona la tecla derecha
+ENTRADAS:
+
+SALIDAS:
+  Representacion grafica y logica del movimiento hacia el lado derecho de la casilla que esta cayendo 
+
+DESCRIPCION:
+  Esta funcion solo se ejecuta en caso que el usuario haya presionado la tecla derecha
+  Confirma que la casilla que esta cayendo se puede mover hacia la derecha(No esta en la columna 0)
+  En caso que se puede mover
+    Confirma si este movimiento provoca una suma de casillas(casilla de la derecha es igual a la casilla cayendo)
+    O si solo se mueve a un espacio vacio
+*/ 
+function tecla_derecha_presionada(){
+  if(actual.columna < 3){//Si nos encontramos en alguna columna que sea menor a la 3
+    if(actual.numero === matrix[actual.fila][actual.columna+1]){//Si la casilla cayendo es igual a la casilla de la derecha
+      suma_horizontal(1);//Se pueden sumar horizontalmente a la derecha
+    }else if (matrix[actual.fila][actual.columna+1] === 0){//Si el espacio de la derecha es igual a 0(esta vacio)
+      mover_horizontalmente(1)//La casilla cayendo se mueve a la derecha
+    }
+  }
+}
+
+/*
+Suma de casillas de forma horizontal
+ENTRADAS:
+  +Orientacion: Hacia el lado del que se debe de sumar la casilla(derecha = 1, izquierda = -1)
+SALIDAS:
+  +Casilla resultado de la suma de forma grafica y logica
+DESCRIPCION:
+  Elimina la casilla actual
+  Se suma con la casilla de la derecha o izquierda
+  La casilla actual pasa a ser la casilla resultado de la suma
+*/ 
+function suma_horizontal(orientacion){
+  reiniciar_casilla(actual.fila, actual.columna);//Se elimina de forma grafica la casilla actual
+  matrix[actual.fila][actual.columna] = 0;//Se elimina de forma logica(en la matriz) en la casilla actual
+  acomodarNumeros(actual.columna);//Se acomodan los numeros en los que la casilla se elimino
+  actual.columna+=orientacion;//La columna actual cambia dependiendo hacia donde se movieron las flechas(derecha = 1, izquierda = -1)
+  sumar_casillas(actual.numero);//Se suman las casillas 
+  actual.numero*=2;//Se actualiza el numero ya que ahora es el resultado de la suma de casillas
+  acomodarNumeros(actual.columna);//Se acomodan los numeros de la columna donde quedo la casilla resultado de la suma
+  actualizar_numero_movimientos();
+}
+
+/*
+Movimiento de casillas de forma horizontal
+ENTRADAS:
+  +Orientacion: Hacia el lado del que se debe de mover la casilla(derecha = 1, izquierda = -1)
+SALIDAS:
+  +Movimiento de la casilla actual hacia la derecha o izquierda de forma grafica y logica
+DESCRIPCION:
+  Elimina la casilla actual
+  Se genera una copia de la casilla en derecha o izquierda(dependiendo de la entrada) de la casilla eliminada
+  La casilla generada pasa a ser la actual
+*/ 
+function mover_horizontalmente(orientacion){
+  reiniciar_casilla(actual.fila, actual.columna);
+  matrix[actual.fila][actual.columna] = 0;
+  acomodarNumeros(actual.columna);
+  actual.columna+=orientacion;
+  matrix[actual.fila][actual.columna] = actual.numero;
+  mover_numero_de_casilla(actual.fila, actual.columna, actual.numero);
+  reiniciar_casilla_generacion_numero(actual.columna-orientacion)
+  actualizar_numero_movimientos();
+}
+
+
+
 
 //Comprueba si ya se perdio la partida o no
 function comprobar_condicion_partida(matrix, columna, numero){
@@ -102,8 +160,6 @@ Funcion caida
 +Salida:
   -No hay salida ya que se modifica la matriz directamente(Como pasar por referencia en c++)
 */
-
-
 async function caida(numero, fila, columna, matrix){
   mlsMovientoCasilla = 1000;                         //pausa entre cada moviento de casilla
   reiniciar_casilla_generacion_numero(columna);           //se coloca la casilla de generacion con los valores por defecto
@@ -156,6 +212,9 @@ async function unir_numeros_vertical(numero, fila, columna, matrix){
   actual.numero*=2;
   while(actual.fila < matrix.length - 1){
     await esperar(mlsMovientoCasilla);    //pausa la2 ejecucion del programa, segun los mls segundos enviados
+    if(actual.fila === matrix.length-1){
+      break;
+    }
     if(actual.numero  === matrix[actual.fila + 1][actual.columna]){
       matrix[actual.fila][actual.columna] = 0;      //se coloca un 0 en la casilla actual 
       reiniciar_casilla(actual.fila, actual.columna);     //se reinicia la casilla (es decir, se pone tal cual como esta al inicio de la ejecucion)               
