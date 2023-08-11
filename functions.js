@@ -2,6 +2,7 @@ let numero_movimientos = 0;
 let suma_de_piezas_en_juego = 0;
 let flagAction = false;
 let inGame = true;
+let hasWon = false;
 let mlsMovientoCasilla = 1000;
 let contador_segundos = 0;
 let contador_minutos = 0;
@@ -126,6 +127,7 @@ function suma_horizontal(orientacion){
   actual.columna+=orientacion;//La columna actual cambia dependiendo hacia donde se movieron las flechas(derecha = 1, izquierda = -1)
   sumar_casillas(actual.numero);//Se suman las casillas 
   actual.numero*=2;//Se actualiza el numero ya que ahora es el resultado de la suma de casillas
+  confirm2028();
   acomodarNumeros(actual.columna);//Se acomodan los numeros de la columna donde quedo la casilla resultado de la suma
   actualizar_numero_movimientos();
 }
@@ -241,6 +243,7 @@ async function unir_numeros_vertical(){
   const mlsMovientoCasilla = 500;//mls de espera cuando cada vez que se produce el efecto de unir dos casillas
   sumar_casillas(actual.numero); //se suman las casillas para unirlas
   actual.numero*=2; //duplica el numero actual
+  confirm2028();
   while(actual.fila < matrix.length - 1){ //repite el proceso hasta que ya no se puedan unir mas
     await esperar(mlsMovientoCasilla);//pausa la ejecucion del programa, segun los ms segundos enviados
     if(actual.fila === matrix.length-1){//verifica si la fila actual se encuentra en la ultima fila para salirse
@@ -252,6 +255,7 @@ async function unir_numeros_vertical(){
       actual.fila++;//incrementa la fila actual
       sumar_casillas(actual.numero);//une la casilla actual con la inferior
       actual.numero*=2;//duplica el numero
+      confirm2028();
     }else{//caso en el que no haya que unir, simplemente detiene el ciclo
       break;
     }
@@ -293,6 +297,7 @@ async function acomodarNumeros(columna){
         num*=2;//se actualiza el numero ya que este se sumó
         if(actual.numero*2 === num)//Si el doble del numero actual es igual a num
           actual.numero = num;//le pone al numero actual el resultado de la union
+        confirm2028();
         acomodarNumeros(columna);//Se acomodan los numeros que estan en la columna de las suma
       }
     }
@@ -555,4 +560,41 @@ function restart_game(){
     }
   }
   main();
+}
+
+//Confirma si el numero actual es 2048
+function confirm2028(){
+  if(actual.numero === 2048){
+    hasWon = true;
+  }
+}
+
+/*
+Funcion de ganar
+ENTRADAS:
+SALIDAS:
+  Se despliega una pantalla con el resumen de la partida
+DESCRIPCION:
+  Se le indica al usuario que se gano
+  Se despliega el resumen que contiene:
+    El tiempo total
+    Movimientos totales realizados
+    Sumatorio total de las piezas en la matriz
+*/
+function ganar(){
+  const div = document.getElementById('game_over_screen');
+  const casilla0 = document.getElementById('game_over');
+  casilla0.textContent = "Has ganado!!"
+  const casilla = document.getElementById('tiempo_final');
+  casilla.textContent = contador_minutos + " : " + contador_segundos;
+  const casilla1 = document.getElementById('suma_de_piezas_final');
+  casilla1.textContent = suma_de_piezas_en_juego;
+  const casilla2 = document.getElementById('numero_de_movimientos_final');
+  casilla2.textContent = numero_movimientos;
+  div.style.display = "flex";
+}
+
+//Funcion cuyo unico objetivo es producir 1024 en la matriz
+function winningMove(n){
+  actual.numero = n;
 }

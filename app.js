@@ -25,6 +25,10 @@ DESCRIPCION:
   Si es asi se vuelve a ejecutar la funcion
 */
 async function main(){  
+  if(hasWon){//Se comprueba si el usuario ya ganó
+    ganar();
+    return;
+  }
   if(!inGame){//Se comprueba si el usuario no ha perdido
     perder();//Se invoca la funcion para mostrar un resumen y la opcion de reiniciar
     return;
@@ -36,6 +40,7 @@ async function main(){
   for (let columna = 0; columna < 4; columna++) {//For para recorrer las columnas 
     reiniciar_casilla_generacion_numero(columna);//Se elimina cualquier numero que se encuentre en la fila 0
   }
+  //winningMove(128);
   await caida(actual.columna, matrix);//funcion que baja el numero fila por fila en la columna que se genero 
   main();//Se vuelve al inicio de la funcion main 
 }
