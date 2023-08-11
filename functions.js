@@ -503,6 +503,8 @@ DESCRIPCION:
 */
 function perder(){
   const div = document.getElementById('game_over_screen');
+  const casilla0 = document.getElementById('game_over');
+  casilla0.textContent = "Game Over!!"
   const casilla = document.getElementById('tiempo_final');
   casilla.textContent = contador_minutos + " : " + contador_segundos;
   const casilla1 = document.getElementById('suma_de_piezas_final');
